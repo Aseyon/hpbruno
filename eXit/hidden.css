@@ -1,0 +1,247 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+:root {
+  --screen-w: min(100vw, 100vh * 4 / 3);
+  --screen-h: min(100vh, 100vw * 3 / 4);
+}
+
+* { box-sizing: border-box; }
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: #000;
+}
+
+body {
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  color: #77ece0;
+  font-family: "VT323", "Courier New", monospace;
+}
+
+#game {
+  position: relative;
+  width: var(--screen-w);
+  height: var(--screen-h);
+  min-width: 320px;
+  min-height: 240px;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+  contain: strict;
+}
+
+/* The scene is rendered small first. This is deliberate: the original look is low-res. */
+#scene {
+  display: none;
+}
+
+#screen {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  image-rendering: auto;
+}
+
+#crt-glass,
+#grain,
+#dust,
+#dust-glow,
+#edge-mask {
+  position: absolute;
+  inset: -3%;
+  pointer-events: none;
+}
+
+/* Glass: barely visible curved reflections / phosphor glow. */
+#crt-glass {
+  z-index: 5;
+  border-radius: 8% / 10%;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(115,255,238,.035) 0%, rgba(115,255,238,0) 55%),
+    linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,0) 20%, rgba(0,0,0,.025) 80%, rgba(0,0,0,.09));
+  mix-blend-mode: screen;
+  filter: blur(.15px);
+}
+
+/* Fine scanlines + aperture grille + rolling CRT band. */
+#grain {
+  z-index: 6;
+  opacity: .42;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 0px,
+      rgba(0,0,0,0) 1px,
+      rgba(0,0,0,.20) 2px,
+      rgba(255,255,255,.035) 3px
+    ),
+    repeating-linear-gradient(
+      to right,
+      rgba(255,255,255,.020) 0px,
+      rgba(255,255,255,.020) 1px,
+      rgba(0,0,0,.018) 2px,
+      rgba(0,0,0,0) 4px
+    );
+  mix-blend-mode: overlay;
+  animation: scanDrift 2.9s linear infinite;
+}
+
+#grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0) 0,
+      rgba(255,255,255,0) 8%,
+      rgba(255,255,255,.018) 8.25%,
+      rgba(255,255,255,0) 8.6%
+    );
+  animation: rollingBand 4.7s linear infinite;
+  mix-blend-mode: screen;
+}
+
+#grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 54%, rgba(0,0,0,.44) 100%);
+  box-shadow: inset 0 0 54px rgba(0,0,0,.48);
+  border-radius: 9% / 10%;
+}
+
+/* Small, moving gray TV dust. JS changes this texture in real time. */
+#dust {
+  z-index: 7;
+  mix-blend-mode: normal;
+  opacity: .17;
+  filter: grayscale(1) contrast(1.55);
+}
+
+#dust-glow {
+  z-index: 7;
+  mix-blend-mode: screen;
+  opacity: .10;
+  background:
+    radial-gradient(circle at 25% 35%, rgba(245,245,245,.10), transparent 25%),
+    radial-gradient(circle at 74% 64%, rgba(215,220,218,.075), transparent 24%),
+    repeating-linear-gradient(0deg, rgba(220,225,223,.045) 0 1px, transparent 1px 4px);
+  animation: dustPulse .13s steps(2,end) infinite;
+}
+
+
+#edge-mask {
+  z-index: 8;
+  border-radius: 8% / 8%;
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0,0,0,.12) 77%, rgba(0,0,0,.68) 100%),
+    linear-gradient(90deg, rgba(0,0,0,.22), transparent 5%, transparent 95%, rgba(0,0,0,.22));
+  pointer-events: none;
+}
+
+#focus-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  z-index: 20;
+  font-size: 12px;
+  letter-spacing: .06em;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mobileControls {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  display: none;
+  width: min(92vw, 620px);
+  transform: translateX(-50%);
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid rgba(119,236,224,.72);
+  border-radius: 3px;
+  background: rgba(0,0,0,.86);
+  box-shadow: 0 0 12px rgba(0,0,0,.75), inset 0 0 8px rgba(44,195,179,.12);
+}
+
+#mobileCommand,
+#mobileSend {
+  box-sizing: border-box;
+  min-height: 42px;
+  border: 1px solid rgba(119,236,224,.72);
+  border-radius: 2px;
+  color: #a7fff1;
+  background: rgba(4,22,23,.96);
+  font: 22px/1 "VT323", "Courier New", monospace;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#mobileCommand {
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 7px 10px;
+  outline: none;
+  caret-color: #bafff3;
+}
+
+#mobileCommand::placeholder {
+  color: rgba(167,255,241,.58);
+}
+
+#mobileCommand:focus {
+  border-color: #bafff3;
+  box-shadow: 0 0 0 1px rgba(186,255,243,.26);
+}
+
+#mobileSend {
+  flex: 0 0 48px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+#mobileSend:active,
+#mobileSend:focus-visible {
+  color: #00110f;
+  background: #77ece0;
+  outline: none;
+}
+
+@keyframes dustPulse {
+  0% { opacity: .20; transform: translate(0,0); }
+  50% { opacity: .32; transform: translate(.5px,-.25px); }
+  100% { opacity: .22; transform: translate(-.25px,.4px); }
+}
+
+@keyframes scanDrift {
+  from { transform: translateY(-2px); }
+  to { transform: translateY(2px); }
+}
+
+@keyframes rollingBand {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #grain, #grain::before { animation: none; }
+}
+
+@media (max-width: 900px), (max-height: 600px) and (orientation: landscape) {
+  #mobileControls {
+    display: flex;
+  }
+
+  #focus-hint {
+    display: none;
+  }
+}

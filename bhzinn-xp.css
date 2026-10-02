@@ -1,0 +1,191 @@
+@import url("style.css?v=20260925-3");
+
+@font-face {
+    font-family: "CmdFont";
+    src: url("fonts/cmd_font.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+/* Folha exclusiva da página BHzinn XP. */
+html,
+body {
+    min-width: 280px;
+    min-height: 100%;
+    overflow: hidden;
+    background: #245edb;
+}
+
+.multiplayer-screen {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.multiplayer-screen .story-background {
+    filter: none;
+}
+
+.xp-taskbar-window[hidden] {
+    display: none;
+}
+
+.xp-window.is-closed {
+    display: none;
+}
+
+.xp-start-menu-avatar,
+.xp-shutdown-icon {
+    object-fit: contain;
+}
+
+/* Visual clássico do CMD.EXE do Windows XP. */
+.cmd-window {
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    width: min(1000px, calc(100vw - 34px));
+    height: min(505px, calc(100vh - 112px));
+    border: 3px solid #d8d8cd;
+    border-radius: 0;
+    background: #d8d8cd;
+    box-shadow: 0 0 0 1px #707070, 3px 4px 0 rgba(0, 0, 0, .35);
+    transform: translate(-50%, -50%) scale(.98);
+}
+
+.cmd-window.is-open {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.cmd-window.is-maximized,
+.cmd-window.is-open.is-maximized {
+    top: 0;
+    right: 0;
+    bottom: 31px;
+    left: 0;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    transform: none;
+}
+
+.cmd-titlebar {
+    min-height: 29px;
+    padding: 2px 3px 2px 5px;
+    color: #fff;
+    background: linear-gradient(180deg, #2d8ae9 0%, #0874df 48%, #0055bd 100%);
+    border-bottom: 2px solid #f5f5ed;
+    font: 700 13px/1 Tahoma, Arial, sans-serif;
+    text-shadow: 1px 1px #164d88;
+}
+
+.cmd-titlebar .xp-titlebar-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.cmd-window .xp-window-control,
+.cmd-window .xp-window-control:hover,
+.cmd-window .xp-window-close,
+.cmd-window .xp-window-close:hover {
+    width: 23px;
+    height: 21px;
+    border: 2px outset #f5f5ed;
+    border-radius: 0;
+    color: #111;
+    background: #d8d8cd;
+    box-shadow: none;
+    font: 700 14px/1 Tahoma, Arial, sans-serif;
+    text-shadow: none;
+}
+
+.cmd-window-content {
+    padding: 4px 5px 5px;
+    border: 1px solid #6e6e67;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    color: #f1f1f1;
+    background: #000;
+    font: 16px/1.08 "CmdFont", "Courier New", monospace;
+    scrollbar-color: #c7c7bd #eeeeE5;
+    scrollbar-width: auto;
+}
+
+.cmd-output,
+.cmd-prompt,
+.cmd-input,
+.cmd-cursor {
+    color: #f1f1f1;
+    font-family: "CmdFont", "Courier New", monospace;
+}
+
+.cmd-output-spacer {
+    height: 1.08em;
+}
+
+.cmd-command-line {
+    min-height: 1.08em;
+}
+
+.cmd-input {
+    font-size: inherit;
+    line-height: inherit;
+    min-width: 1px;
+}
+
+.cmd-cursor {
+    border-bottom-color: #f1f1f1;
+    color: transparent;
+}
+
+@media (max-width: 900px), (max-height: 600px) and (orientation: landscape) {
+    html,
+    body,
+    .multiplayer-screen {
+        width: 100%;
+        min-height: 100%;
+    }
+
+    .xp-taskbar {
+        height: 32px;
+        font-size: 11px;
+    }
+
+    .xp-taskbar-tray {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 62px;
+        height: 100%;
+        padding: 0 9px;
+        line-height: 1;
+    }
+
+    #xp-clock {
+        display: block;
+        font: 11px/1 Tahoma, Arial, sans-serif;
+        line-height: 1;
+    }
+
+    .cmd-window {
+        width: calc(100vw - 16px);
+        height: calc(100vh - 92px);
+    }
+
+    .cmd-window-content {
+        padding: 4px;
+        font-size: 14px;
+    }
+
+    .cmd-input-shell,
+    .cmd-input {
+        min-width: 0;
+    }
+
+    .cmd-window.is-maximized,
+    .cmd-window.is-open.is-maximized {
+        bottom: 32px;
+    }
+}

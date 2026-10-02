@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <link rel="icon" type="image/x-icon" href="minecraft_favicon/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#050914">
+    <meta name="description" content="Menu principal inspirado no Minecraft 1.8">
+    <title>Minecraft - Menu principal</title>
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/minecraftia" type="text/css">
+    <link rel="stylesheet" href="style.css?v=20260925-4">
+</head>
+<body>
+    <main class="title-screen" aria-label="Menu principal do Minecraft">
+        <div class="background" aria-hidden="true"></div>
+        <div class="background-shade" aria-hidden="true"></div>
+        <div class="vignette" aria-hidden="true"></div>
+        <header class="logo" aria-label="Bruno"><div class="logo-art"><img src="imgs/brunologo.png" alt="Bruno"></div><div class="logo-splash" aria-hidden="true">Feliz aniversário de 18 anos!</div></header>
+        <section class="menu" aria-label="Opções do menu">
+            <div class="menu-buttons"><button class="mc-button" type="button" data-screen="singleplayer">Who is Izume?</button><button class="mc-button" type="button" data-screen="multiplayer">BHzinn XP</button><div class="menu-row"><button class="mc-button" type="button" data-screen="options">Tim</button><button class="mc-button" type="button" data-screen="quit">Sair do site</button></div></div>
+            <p class="status" id="status" aria-live="polite"></p>
+        </section>
+        <div class="footer-bar"><p class="copyright">De Ace para Bruno.</p><p class="version">Minecraft 18.10.26</p></div>
+        <button class="sound-button" id="sound-toggle" type="button" aria-label="Desligar música" aria-pressed="false" title="Música ligada"><span class="sound-glyph" aria-hidden="true">♪</span></button>
+        <audio id="menu-music" loop preload="auto" autoplay><source src="sounds/Y2Mate.is%20-%20Minecraft%20Music%20-%20Menu%201.mp3" type="audio/mpeg"></audio>
+        <audio id="click-sound" preload="auto"><source src="sounds/minecraft_click_trimmed.wav" type="audio/wav"></audio>
+    </main>
+
+    <section class="story-screen" id="whois-screen" aria-label="Who is Izume?" aria-hidden="true">
+        <div class="story-background" aria-hidden="true"></div><div class="story-shade" aria-hidden="true"></div>
+        <div class="story-scroll" id="whois-scroll" tabindex="0"><article class="story-content">
+            <div class="story-logo" aria-label="Bruno"><div class="logo-art"><img src="imgs/brunologo.png" alt="Bruno"></div></div>
+            <div class="story-copy" id="whois-copy">
+                <p>REGISTRO DE TESTE: WHO IS IZUME?</p>
+            </div>
+            <button class="story-back mc-button" type="button" data-screen="back" aria-label="Voltar ao menu">Voltar</button>
+        </article></div>
+    </section>
+    <script src="script.js?v=20260925-1"></script>
+</body>
+</html>
