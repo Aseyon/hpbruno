@@ -326,7 +326,6 @@ function openCmd() {
         document.querySelector("#cmd-window-maximize").textContent = "❐";
         void requestLandscapeMode();
     }
-    requestAnimationFrame(() => cmdInput.focus({ preventScroll: true }));
 }
 
 function closeCmd() {
@@ -562,16 +561,12 @@ cmdInput.addEventListener("keydown", (event) => {
     }
 });
 cmdContent.addEventListener("pointerdown", (event) => {
+    if (!event.target.closest(".cmd-command-line, .cmd-input-shell, .cmd-input")) return;
     maximizeCmdForTyping();
-    if (!event.target.closest("button, input")) cmdInput.focus({ preventScroll: true });
+    if (event.target !== cmdInput) cmdInput.focus({ preventScroll: true });
 });
 cmdInput.addEventListener("focus", maximizeCmdForTyping);
 document.addEventListener("keydown", (event) => {
-    if (cmdWindow.classList.contains("is-open") && !cmdWindow.classList.contains("is-minimized") && event.target !== cmdInput && !event.target.closest?.("button")) {
-        if (event.key === "Enter") { event.preventDefault(); executeCommand(cmdInput.value); }
-        else if (event.key === "Backspace") { event.preventDefault(); playTypeSound(); cmdInput.value = cmdInput.value.slice(0, -1); resizeCmdInput(); }
-        else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) { event.preventDefault(); playTypeSound(); cmdInput.value += event.key; resizeCmdInput(); cmdInput.focus({ preventScroll: true }); }
-    }
     if (event.key === "Escape" && photoViewer.classList.contains("is-open")) closePhoto();
 });
 

@@ -60,6 +60,9 @@ let mobileInput = null;
 let mobileSend = null;
 let mobileControls = null;
 let orientationNotice = null;
+const mobileSceneQuery = window.matchMedia(
+  '(max-width: 900px), (max-height: 600px) and (orientation: landscape)'
+);
 
 const STATES = {
   barrel: {
@@ -523,8 +526,10 @@ function drawText(
 ) {
   sceneCtx.save();
 
+  const textScale = mobileSceneQuery.matches ? 1.35 : 1;
+
   sceneCtx.font =
-    `${size}px VT323, "Courier New", monospace`;
+    `${size * textScale}px VT323, "Courier New", monospace`;
 
   sceneCtx.textAlign = align;
   sceneCtx.textBaseline = 'alphabetic';
@@ -554,12 +559,14 @@ function drawMultiline(
   align = 'left',
   lineGap = 16
 ) {
+  const textScale = mobileSceneQuery.matches ? 1.35 : 1;
+
   value.split('\n').forEach(
     (line, i) => {
       drawText(
         line,
         x,
-        y + i * lineGap,
+        y + i * lineGap * textScale,
         size,
         align
       );
@@ -582,7 +589,7 @@ function drawTitle() {
   drawText(
     'pressione qualquer tecla para começar',
     SW / 2,
-    SH - 56,
+    mobileSceneQuery.matches ? SH - 72 : SH - 56,
     12,
     'center'
   );
@@ -595,13 +602,21 @@ function drawGame() {
 
   drawArt(s.art);
 
+  const isMobile = mobileSceneQuery.matches;
+  const textScale = isMobile ? 1.35 : 1;
+  const bodyLineGap = 14;
+  const commandY = isMobile ? SH - 20 : SH - 12;
+  const bodyY = isMobile
+    ? commandY - 28 - (s.body.split('\n').length - 1) * bodyLineGap * textScale
+    : SH - 58;
+
   drawMultiline(
     s.body,
     SW / 2,
-    SH - 58,
+    bodyY,
     12,
     'center',
-    14
+    bodyLineGap
   );
 
   const cursor =
@@ -612,7 +627,7 @@ function drawGame() {
   drawText(
     '> ' + input + cursor,
     SW / 2,
-    SH - 12,
+    commandY,
     12,
     'center'
   );
@@ -626,7 +641,9 @@ function drawGame() {
       acender um fósforo
   */
 
-  if (Array.isArray(s.choices)) {
+  if (isMobile) {
+    // No mobile hint row: the prompt itself is the only input interface.
+  } else if (Array.isArray(s.choices)) {
     const labels = s.choices
       .map(choice => choice.accepts[0])
       .join('  |  ');
@@ -679,10 +696,12 @@ function drawGame() {
 function drawNewWorld() {
   drawArt('new_world');
 
+  const isMobile = mobileSceneQuery.matches;
+
   drawText(
     'parabéns, você está a caminho de um novo mundo!',
     SW / 2,
-    SH - 43,
+    isMobile ? SH - 76 : SH - 43,
     11,
     'center'
   );
@@ -690,7 +709,7 @@ function drawNewWorld() {
   drawText(
     'você quer jogar novamente? [sim / não]',
     SW / 2,
-    SH - 25,
+    isMobile ? SH - 48 : SH - 25,
     11,
     'center'
   );
@@ -703,7 +722,7 @@ function drawNewWorld() {
   drawText(
     '> ' + input + cursor,
     SW / 2,
-    SH - 10,
+    isMobile ? SH - 20 : SH - 10,
     11,
     'center'
   );
@@ -1997,15 +2016,11 @@ function setupMobileControls() {
       autocapitalize="none"
       spellcheck="false"
       enterkeyhint="send"
-      placeholder="digite seu comando"
+      aria-label="Linha de comando do eXit"
     >
-
-    <button id="mobileSend">
-      ↵
-    </button>
   `;
 
-  document.body.appendChild(
+  (document.getElementById('game') || document.body).appendChild(
     mobileControls
   );
 
@@ -2014,10 +2029,7 @@ function setupMobileControls() {
       'mobileCommand'
     );
 
-  mobileSend =
-    document.getElementById(
-      'mobileSend'
-    );
+  mobileSend = null;
 
   /*
     Sempre que o usuário digitar,
@@ -2038,20 +2050,6 @@ function setupMobileControls() {
   /*
     Botão de enviar.
   */
-
-  mobileSend.addEventListener(
-    'click',
-    () => {
-      input =
-        mobileInput.value;
-
-      mobileInput.value = '';
-
-      submit();
-
-      mobileInput.blur();
-    }
-  );
 
   /*
     Enter do teclado virtual.
@@ -2102,17 +2100,6 @@ function setupMobileControls() {
   }
 );
 
-  /*
-    Evita o teclado do celular
-    continuar mostrando depois do envio.
-  */
-
-  mobileSend.addEventListener(
-    'touchend',
-    e => {
-      e.preventDefault();
-    }
-  );
 }
 
 async function requestLandscape() {

@@ -159,61 +159,63 @@ body {
 }
 
 #mobileControls {
-  position: fixed;
+  position: absolute;
+  inset: 0;
   z-index: 30;
-  left: 50%;
-  bottom: max(10px, env(safe-area-inset-bottom));
   display: none;
-  width: min(92vw, 620px);
-  transform: translateX(-50%);
-  gap: 6px;
-  padding: 6px;
-  border: 1px solid rgba(119,236,224,.72);
-  border-radius: 3px;
-  background: rgba(0,0,0,.86);
-  box-shadow: 0 0 12px rgba(0,0,0,.75), inset 0 0 8px rgba(44,195,179,.12);
-}
-
-#mobileCommand,
-#mobileSend {
-  box-sizing: border-box;
-  min-height: 42px;
-  border: 1px solid rgba(119,236,224,.72);
-  border-radius: 2px;
-  color: #a7fff1;
-  background: rgba(4,22,23,.96);
-  font: 22px/1 "VT323", "Courier New", monospace;
-  -webkit-tap-highlight-color: transparent;
+  pointer-events: none;
 }
 
 #mobileCommand {
+  position: absolute;
+  left: 8%;
+  bottom: 1%;
+  width: 84%;
+  height: 12%;
+  box-sizing: border-box;
   min-width: 0;
-  flex: 1 1 auto;
-  padding: 7px 10px;
-  outline: none;
-  caret-color: #bafff3;
-}
-
-#mobileCommand::placeholder {
-  color: rgba(167,255,241,.58);
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: transparent;
+  background: transparent;
+  font: 16px/1 "VT323", "Courier New", monospace;
+  -webkit-text-fill-color: transparent;
+  caret-color: transparent;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 #mobileCommand:focus {
-  border-color: #bafff3;
-  box-shadow: 0 0 0 1px rgba(186,255,243,.26);
+  outline: 0;
+  box-shadow: none;
 }
 
 #mobileSend {
-  flex: 0 0 48px;
-  padding: 4px 8px;
-  cursor: pointer;
+  display: none;
 }
 
-#mobileSend:active,
-#mobileSend:focus-visible {
-  color: #00110f;
-  background: #77ece0;
-  outline: none;
+#mobileControls:focus-within {
+  outline: 0;
+}
+
+/* The canvas draws the prompt and the typed characters. This input only opens the native keyboard. */
+#mobileCommand::selection {
+  background: transparent;
+  color: transparent;
+}
+
+#mobileCommand::-webkit-input-placeholder {
+  color: transparent;
+}
+
+#mobileCommand:active {
+  cursor: pointer;
 }
 
 @keyframes dustPulse {
@@ -238,7 +240,7 @@ body {
 
 @media (max-width: 900px), (max-height: 600px) and (orientation: landscape) {
   #mobileControls {
-    display: flex;
+    display: block;
   }
 
   #focus-hint {
