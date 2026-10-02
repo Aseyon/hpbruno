@@ -2054,27 +2054,86 @@ function setupMobileControls() {
     );
 
   mobileSend = null;
+  let skipNextMobileBeforeInput = false;
+
+  const suppressFollowingMobileInput = () => {
+    skipNextMobileBeforeInput = true;
+    window.setTimeout(() => {
+      skipNextMobileBeforeInput = false;
+    }, 0);
+  };
+
+  const appendMobileText = text => {
+    const typed = String(text || '')
+      .replace(/[\r\n]/g, '')
+      .toLowerCase();
+
+    if (!typed) return;
+
+    input += typed;
+    playTypeEffect();
+  };
+
+  const deleteMobileText = () => {
+    if (!input.length) return;
+
+    input = input.slice(0, -1);
+    playTypeEffect();
+  };
 
   /*
-    Sempre que o usuário digitar,
-    sincroniza com a variável "input"
-    usada pelo jogo.
+    O teclado móvel não edita o campo nativo.
+    Capturamos o texto antes da edição para que
+    nenhum teclado consiga reposicionar o cursor.
   */
 
   mobileInput.addEventListener(
-  'input',
-  () => {
-    const typed = mobileInput.value;
-    if (!typed) return;
+    'beforeinput',
+    e => {
+      e.stopPropagation();
 
-    // The mobile field is a one-keystroke collector. This avoids mobile IMEs
-    // moving the caret to the beginning of a transparent, canvas-backed input.
-    input += typed.toLowerCase();
-    mobileInput.value = '';
+      if (skipNextMobileBeforeInput) {
+        skipNextMobileBeforeInput = false;
+        e.preventDefault();
+        return;
+      }
 
-    playTypeEffect();
-  }
-);
+      const type = e.inputType || '';
+
+      if (
+        type === 'insertText' ||
+        type === 'insertCompositionText' ||
+        type === 'insertFromPaste' ||
+        type === 'insertReplacementText'
+      ) {
+        e.preventDefault();
+        appendMobileText(
+          e.data || e.clipboardData?.getData('text') || ''
+        );
+        mobileInput.value = '';
+        return;
+      }
+
+      if (
+        type === 'deleteContentBackward' ||
+        type === 'deleteContentForward'
+      ) {
+        e.preventDefault();
+        deleteMobileText();
+      }
+    }
+  );
+
+  /* Fallback para navegadores que não expõem beforeinput. */
+  mobileInput.addEventListener(
+    'input',
+    () => {
+      if (!mobileInput.value) return;
+
+      appendMobileText(mobileInput.value);
+      mobileInput.value = '';
+    }
+  );
 
   /*
     Botão de enviar.
@@ -2110,13 +2169,21 @@ function setupMobileControls() {
       BACKSPACE = apagar + som
     */
     if (e.key === 'Backspace') {
-      if (input.length > 0) {
-        input = input.slice(0, -1);
-        playTypeEffect();
-      }
-
+      suppressFollowingMobileInput();
+      deleteMobileText();
       e.preventDefault();
       return;
+    }
+
+    if (
+      e.key.length === 1 &&
+      !e.ctrlKey &&
+      !e.altKey &&
+      !e.metaKey
+    ) {
+      suppressFollowingMobileInput();
+      appendMobileText(e.key);
+      e.preventDefault();
     }
   }
 );
