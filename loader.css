@@ -4,9 +4,9 @@
     inset: 0;
     display: grid;
     place-items: center;
-    color: #d9ffff;
-    background: #050914;
-    font: 14px/1.2 "Courier New", monospace;
+    color: #fff;
+    background: #000;
+    font: 700 22px/1 "Courier New", monospace;
     opacity: 1;
     visibility: visible;
     transition: opacity 180ms ease, visibility 180ms ease;
@@ -19,32 +19,28 @@
 }
 
 .site-loader-card {
-    width: min(330px, calc(100vw - 42px));
-    padding: 18px 18px 14px;
-    border: 2px solid #89bfc1;
-    outline: 2px solid #071719;
-    background: rgba(5, 20, 24, .94);
-    box-shadow: 0 0 0 1px #0b5559, 0 10px 26px rgba(0, 0, 0, .46);
-    text-align: center;
+    width: min(480px, calc(100vw - 54px));
+    padding: 0;
 }
 
-.site-loader-mark {
-    margin-bottom: 10px;
-    color: #fff;
-    font: 700 19px/1 "Courier New", monospace;
-    letter-spacing: .14em;
-    text-shadow: 2px 2px #1b5557;
+.site-loader-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 0 4px 12px;
+    letter-spacing: .12em;
+    text-shadow: 3px 3px 0 #777;
 }
 
 .site-loader-title {
-    margin-bottom: 10px;
-    letter-spacing: .08em;
+    white-space: nowrap;
 }
 
 .site-loader-track {
-    height: 12px;
-    padding: 2px;
-    border: 1px solid #7fa8a9;
+    height: 52px;
+    padding: 5px;
+    border: 6px solid #fff;
     background: #010607;
     text-align: left;
 }
@@ -52,12 +48,26 @@
 #site-loader-progress {
     width: 0;
     height: 100%;
-    background: repeating-linear-gradient(90deg, #70d8d2 0 9px, #377f82 9px 11px);
+    background: repeating-linear-gradient(90deg, #fff 0 20px, #000 20px 27px);
     transition: width 120ms linear;
 }
 
 #site-loader-detail {
-    margin-top: 8px;
-    color: #91c9c9;
-    font-size: 11px;
+    white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+    #site-loader {
+        font-size: 16px;
+    }
+
+    .site-loader-heading {
+        margin-bottom: 9px;
+    }
+
+    .site-loader-track {
+        height: 38px;
+        border-width: 4px;
+        padding: 4px;
+    }
 }

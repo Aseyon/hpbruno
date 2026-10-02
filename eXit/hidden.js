@@ -1633,6 +1633,7 @@ function resetGame() {
   endingText = '';
   endingStartedAt = 0;
 
+  if (mobileInput) mobileInput.value = '';
   stopGameMusic();
   startAtmosphere();
 }
@@ -2038,6 +2039,7 @@ function setupMobileControls() {
       autocapitalize="none"
       spellcheck="false"
       enterkeyhint="send"
+      dir="ltr"
       aria-label="Linha de comando do eXit"
     >
   `;
@@ -2062,27 +2064,17 @@ function setupMobileControls() {
   mobileInput.addEventListener(
   'input',
   () => {
-    const end = mobileInput.value.length;
-    try {
-      mobileInput.setSelectionRange(end, end);
-    } catch {}
+    const typed = mobileInput.value;
+    if (!typed) return;
 
-    input =
-      mobileInput.value.toLowerCase();
+    // The mobile field is a one-keystroke collector. This avoids mobile IMEs
+    // moving the caret to the beginning of a transparent, canvas-backed input.
+    input += typed.toLowerCase();
+    mobileInput.value = '';
 
     playTypeEffect();
   }
 );
-
-  mobileInput.addEventListener(
-    'focus',
-    () => {
-      const end = mobileInput.value.length;
-      try {
-        mobileInput.setSelectionRange(end, end);
-      } catch {}
-    }
-  );
 
   /*
     Botão de enviar.
@@ -2101,27 +2093,11 @@ function setupMobileControls() {
     */
     e.stopPropagation();
 
-    if (
-      e.key.length === 1 ||
-      e.key === 'Backspace' ||
-      e.key === 'Delete'
-    ) {
-      const end = mobileInput.value.length;
-      try {
-        mobileInput.setSelectionRange(end, end);
-      } catch {}
-    }
-
     /*
       ENTER = enviar comando
     */
     if (e.key === 'Enter') {
       e.preventDefault();
-
-      input =
-        mobileInput.value;
-
-      mobileInput.value = '';
 
       submit();
 
@@ -2134,15 +2110,12 @@ function setupMobileControls() {
       BACKSPACE = apagar + som
     */
     if (e.key === 'Backspace') {
-      if (mobileInput.value.length > 0) {
+      if (input.length > 0) {
+        input = input.slice(0, -1);
         playTypeEffect();
       }
 
-      /*
-        NÃO damos preventDefault aqui.
-        O navegador precisa apagar a letra
-        normalmente do input.
-      */
+      e.preventDefault();
       return;
     }
   }
