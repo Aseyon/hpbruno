@@ -37,6 +37,7 @@ const cmdContent = document.querySelector("#cmd-window-content");
 
 let activeWindow = xpWindow;
 let nextLayer = 30;
+let cmdFocused = false;
 let activePhotoIndex = 0;
 let photoZoom = 1;
 let slideshowTimer;
@@ -130,6 +131,13 @@ function maximizeCmdForTyping() {
         updateTaskbar();
     }
     void requestLandscapeMode();
+}
+
+function focusCmdInput() {
+    if (!cmdWindow || !cmdWindow.classList.contains("is-open") || cmdWindow.classList.contains("is-minimized")) return;
+    cmdFocused = true;
+    maximizeCmdForTyping();
+    if (document.activeElement !== cmdInput) cmdInput.focus({ preventScroll: true });
 }
 
 function shutdownToMenu() {
@@ -232,6 +240,7 @@ function focusTopWindow() {
 function minimizeWindow(windowRoot, windowElement = windowRoot) {
     windowRoot.classList.add("is-minimized");
     windowElement.classList.add("is-minimized");
+    if (windowRoot === cmdWindow) cmdFocused = false;
     if (activeWindow === windowRoot) focusTopWindow();
     updateTaskbar();
 }
@@ -315,6 +324,7 @@ function closeNotepad() {
 
 function openCmd() {
     closeMenus();
+    cmdFocused = false;
     cmdWindow.classList.add("is-open");
     cmdWindow.classList.remove("is-minimized", "is-maximized");
     cmdWindow.setAttribute("aria-hidden", "false");
@@ -325,10 +335,13 @@ function openCmd() {
         cmdWindow.classList.add("is-maximized");
         document.querySelector("#cmd-window-maximize").textContent = "❐";
         void requestLandscapeMode();
+    } else {
+        window.requestAnimationFrame(focusCmdInput);
     }
 }
 
 function closeCmd() {
+    cmdFocused = false;
     cmdWindow.classList.remove("is-open", "is-minimized", "is-maximized");
     cmdWindow.setAttribute("aria-hidden", "true");
     updateTaskbar();
@@ -560,20 +573,50 @@ cmdInput.addEventListener("keydown", (event) => {
         executeCommand(cmdInput.value);
     }
 });
-cmdContent.addEventListener("pointerdown", (event) => {
-    if (!event.target.closest(".cmd-command-line, .cmd-input-shell, .cmd-input")) return;
-    maximizeCmdForTyping();
-    if (event.target !== cmdInput) cmdInput.focus({ preventScroll: true });
+cmdWindow.addEventListener("pointerdown", (event) => {
+    if (event.target.closest("button")) return;
+    focusCmdInput();
 });
-cmdInput.addEventListener("focus", maximizeCmdForTyping);
+cmdInput.addEventListener("focus", () => {
+    cmdFocused = true;
+    maximizeCmdForTyping();
+});
 document.addEventListener("keydown", (event) => {
+    if (cmdFocused && cmdWindow.classList.contains("is-open") && !cmdWindow.classList.contains("is-minimized") && event.target !== cmdInput && !event.target.closest?.("button, input, textarea, select")) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            executeCommand(cmdInput.value);
+            return;
+        }
+
+        if (event.key === "Backspace") {
+            event.preventDefault();
+            playTypeSound();
+            cmdInput.value = cmdInput.value.slice(0, -1);
+            resizeCmdInput();
+            return;
+        }
+
+        if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+            event.preventDefault();
+            playTypeSound();
+            cmdInput.value += event.key;
+            resizeCmdInput();
+            return;
+        }
+    }
+
     if (event.key === "Escape" && photoViewer.classList.contains("is-open")) closePhoto();
 });
 
 storyScroll.addEventListener("wheel", stopAutoScroll, { passive: true });
 storyScroll.addEventListener("touchstart", stopAutoScroll, { passive: true });
 storyScroll.addEventListener("touchmove", stopAutoScroll, { passive: true });
-document.addEventListener("pointerdown", (event) => { const inside = [xpStartMenu, xpStartButton, document.querySelector(".xp-menubar"), document.querySelector(".photo-viewer-menubar")].some((root) => root?.contains(event.target)); if (!inside) closeMenus(); });
+document.addEventListener("pointerdown", (event) => {
+    if (!cmdWindow.contains(event.target)) cmdFocused = false;
+    const inside = [xpStartMenu, xpStartButton, document.querySelector(".xp-menubar"), document.querySelector(".photo-viewer-menubar")].some((root) => root?.contains(event.target));
+    if (!inside) closeMenus();
+});
 document.addEventListener("selectstart", (event) => { if (event.target.closest(".story-scroll, .photo-gallery-window, .photo-viewer-status, .trash-window-content")) event.preventDefault(); });
 document.addEventListener("contextmenu", (event) => { if (event.target.closest(".story-scroll, .photo-gallery-window, .photo-viewer-status, .trash-window-content")) event.preventDefault(); });
 

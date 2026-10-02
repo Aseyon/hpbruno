@@ -63,6 +63,23 @@ let orientationNotice = null;
 const mobileSceneQuery = window.matchMedia(
   '(max-width: 900px), (max-height: 600px) and (orientation: landscape)'
 );
+let mobilePresentationRequested = false;
+
+function isMobileDevice() {
+  return /Android|iPhone|iPad|iPod|Windows Phone|Mobile/i.test(
+    navigator.userAgent || ''
+  ) || (
+    navigator.maxTouchPoints > 0 &&
+    mobileSceneQuery.matches
+  );
+}
+
+function ensureMobilePresentation() {
+  if (!isMobileDevice() || mobilePresentationRequested) return;
+
+  mobilePresentationRequested = true;
+  void requestLandscape();
+}
 
 const STATES = {
   barrel: {
@@ -1898,6 +1915,7 @@ function renderScene(now) {
 window.addEventListener(
   'keydown',
   e => {
+    ensureMobilePresentation();
 
     /*
       Tela de título:
@@ -1977,6 +1995,8 @@ window.addEventListener(
 window.addEventListener(
   'pointerdown',
   () => {
+    ensureMobilePresentation();
+
     if (!started) {
       playStartClick();
       resetGame();
