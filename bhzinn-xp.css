@@ -133,6 +133,8 @@ body {
     font-size: inherit;
     line-height: inherit;
     min-width: 1px;
+    direction: ltr;
+    text-align: left;
 }
 
 .cmd-cursor {

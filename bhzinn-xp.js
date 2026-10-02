@@ -435,7 +435,20 @@ function resetCmd() {
 }
 
 function resizeCmdInput() {
-    cmdInput.style.width = `${cmdInput.value.length}ch`;
+    const end = cmdInput.value.length;
+    cmdInput.style.width = `${Math.max(1, end)}ch`;
+
+    // No celular, alterar a largura do input pode mover o cursor para o
+    // início. O CMD sempre escreve no fim da linha, então reposicionamos
+    // o cursor depois de cada redimensionamento.
+    const keepCaretAtEnd = () => {
+        if (document.activeElement !== cmdInput) return;
+        const currentEnd = cmdInput.value.length;
+        cmdInput.setSelectionRange(currentEnd, currentEnd);
+    };
+
+    keepCaretAtEnd();
+    window.requestAnimationFrame(keepCaretAtEnd);
 }
 
 function executeCommand(rawCommand) {
@@ -580,6 +593,7 @@ cmdWindow.addEventListener("pointerdown", (event) => {
 cmdInput.addEventListener("focus", () => {
     cmdFocused = true;
     maximizeCmdForTyping();
+    cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length);
 });
 document.addEventListener("keydown", (event) => {
     if (cmdFocused && cmdWindow.classList.contains("is-open") && !cmdWindow.classList.contains("is-minimized") && event.target !== cmdInput && !event.target.closest?.("button, input, textarea, select")) {

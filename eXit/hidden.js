@@ -2054,14 +2054,6 @@ function setupMobileControls() {
     );
 
   mobileSend = null;
-  let skipNextMobileBeforeInput = false;
-
-  const suppressFollowingMobileInput = () => {
-    skipNextMobileBeforeInput = true;
-    window.setTimeout(() => {
-      skipNextMobileBeforeInput = false;
-    }, 0);
-  };
 
   const appendMobileText = text => {
     const typed = String(text || '')
@@ -2092,12 +2084,6 @@ function setupMobileControls() {
     e => {
       e.stopPropagation();
 
-      if (skipNextMobileBeforeInput) {
-        skipNextMobileBeforeInput = false;
-        e.preventDefault();
-        return;
-      }
-
       const type = e.inputType || '';
 
       if (
@@ -2127,11 +2113,22 @@ function setupMobileControls() {
   /* Fallback para navegadores que não expõem beforeinput. */
   mobileInput.addEventListener(
     'input',
-    () => {
-      if (!mobileInput.value) return;
+    e => {
+      const type = e.inputType || '';
 
-      appendMobileText(mobileInput.value);
+      if (type === 'deleteContentBackward' || type === 'deleteContentForward') {
+        deleteMobileText();
+        mobileInput.value = '';
+        mobileInput.setSelectionRange?.(0, 0);
+        return;
+      }
+
+      const typed = e.data || mobileInput.value;
+      if (!typed) return;
+
+      appendMobileText(typed);
       mobileInput.value = '';
+      mobileInput.setSelectionRange?.(0, 0);
     }
   );
 
@@ -2168,23 +2165,6 @@ function setupMobileControls() {
     /*
       BACKSPACE = apagar + som
     */
-    if (e.key === 'Backspace') {
-      suppressFollowingMobileInput();
-      deleteMobileText();
-      e.preventDefault();
-      return;
-    }
-
-    if (
-      e.key.length === 1 &&
-      !e.ctrlKey &&
-      !e.altKey &&
-      !e.metaKey
-    ) {
-      suppressFollowingMobileInput();
-      appendMobileText(e.key);
-      e.preventDefault();
-    }
   }
 );
 
