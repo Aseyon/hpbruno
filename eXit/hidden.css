@@ -181,6 +181,9 @@ body {
   color: transparent;
   background: transparent;
   font: 16px/1 "VT323", "Courier New", monospace;
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: plaintext;
   -webkit-text-fill-color: transparent;
   caret-color: transparent;
   -webkit-tap-highlight-color: transparent;

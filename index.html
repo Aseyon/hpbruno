@@ -7,10 +7,19 @@
     <meta name="theme-color" content="#050914">
     <meta name="description" content="Menu principal inspirado no Minecraft 1.8">
     <title>Minecraft - Menu principal</title>
+    <link rel="stylesheet" href="loader.css?v=20261002-1">
     <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/minecraftia" type="text/css">
-    <link rel="stylesheet" href="style.css?v=20260925-4">
+    <link rel="stylesheet" href="style.css?v=20261002-1">
 </head>
 <body>
+    <div id="site-loader" role="status" aria-live="polite" aria-label="Carregando menu">
+        <div class="site-loader-card">
+            <div class="site-loader-mark" aria-hidden="true">BHzinn</div>
+            <div class="site-loader-title">Carregando</div>
+            <div class="site-loader-track"><div id="site-loader-progress"></div></div>
+            <div id="site-loader-detail">0%</div>
+        </div>
+    </div>
     <main class="title-screen" aria-label="Menu principal do Minecraft">
         <div class="background" aria-hidden="true"></div>
         <div class="background-shade" aria-hidden="true"></div>
@@ -36,6 +45,7 @@
             <button class="story-back mc-button" type="button" data-screen="back" aria-label="Voltar ao menu">Voltar</button>
         </article></div>
     </section>
+    <script src="loader.js?v=20261002-1" defer></script>
     <script src="script.js?v=20260925-1"></script>
 </body>
 </html>

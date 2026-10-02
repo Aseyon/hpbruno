@@ -281,8 +281,8 @@ button {
 .footer-bar {
     position: absolute;
     right: 76px;
-    bottom: 28px;
-    left: 76px;
+    bottom: 10px;
+    left: 4px;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -1639,13 +1639,13 @@ audio {
     }
 
     .copyright {
-        display: none;
+        display: block;
     }
 
     .footer-bar {
-        right: 64px;
-        left: 76px;
-        bottom: 24px;
+        right: 46px;
+        left: 4px;
+        bottom: 10px;
     }
 
     .sound-button {
@@ -1917,8 +1917,8 @@ audio {
 
     .footer-bar {
         right: 46px;
-        bottom: 12px;
-        left: 46px;
+        bottom: 10px;
+        left: 4px;
         gap: 10px;
     }
 

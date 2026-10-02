@@ -499,6 +499,8 @@ async function preload() {
 
   ready = true;
 
+  window.dispatchEvent(new Event('site:app-ready'));
+
   setupDust();
   initCRT();
 
@@ -2060,12 +2062,27 @@ function setupMobileControls() {
   mobileInput.addEventListener(
   'input',
   () => {
+    const end = mobileInput.value.length;
+    try {
+      mobileInput.setSelectionRange(end, end);
+    } catch {}
+
     input =
       mobileInput.value.toLowerCase();
 
     playTypeEffect();
   }
 );
+
+  mobileInput.addEventListener(
+    'focus',
+    () => {
+      const end = mobileInput.value.length;
+      try {
+        mobileInput.setSelectionRange(end, end);
+      } catch {}
+    }
+  );
 
   /*
     Botão de enviar.
@@ -2083,6 +2100,17 @@ function setupMobileControls() {
       listener global do teclado.
     */
     e.stopPropagation();
+
+    if (
+      e.key.length === 1 ||
+      e.key === 'Backspace' ||
+      e.key === 'Delete'
+    ) {
+      const end = mobileInput.value.length;
+      try {
+        mobileInput.setSelectionRange(end, end);
+      } catch {}
+    }
 
     /*
       ENTER = enviar comando
