@@ -132,7 +132,7 @@ body {
 .cmd-input {
     font-size: inherit;
     line-height: inherit;
-    min-width: 1px;
+    min-width: 0;
     direction: ltr;
     text-align: left;
 }

@@ -436,7 +436,7 @@ function resetCmd() {
 
 function resizeCmdInput() {
     const end = cmdInput.value.length;
-    cmdInput.style.width = `${Math.max(1, end)}ch`;
+    cmdInput.style.width = `${end}ch`;
 
     // No celular, alterar a largura do input pode mover o cursor para o
     // início. O CMD sempre escreve no fim da linha, então reposicionamos
