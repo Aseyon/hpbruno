@@ -327,6 +327,209 @@ function normalizeCommand(text) {
     .trim();
 }
 
+/*
+  O jogo não deve exigir uma frase exata. Cada palavra abaixo aponta para
+  uma ideia da ação, então "leia o bilhete", "ver a nota" e "consultar o
+  papel", por exemplo, podem chegar à mesma resposta.
+*/
+const COMMAND_ALIASES = {
+  mover: ['move'],
+  mova: ['move'],
+  mexer: ['move'],
+  mexa: ['move'],
+  empurrar: ['move'],
+  empurre: ['move'],
+  empurro: ['move'],
+  tirar: ['move'],
+  retire: ['move'],
+  retirar: ['move'],
+  remover: ['move'],
+  afastar: ['move'],
+  arrastar: ['move'],
+  deslocar: ['move'],
+  desloca: ['move'],
+  rodar: ['move'],
+  rolar: ['move'],
+  role: ['move'],
+
+  sentar: ['sit'],
+  senta: ['sit'],
+  sente: ['sit'],
+  sento: ['sit'],
+  sentado: ['sit'],
+  assentar: ['sit'],
+  acomodar: ['sit'],
+  posicionar: ['sit'],
+
+  entrar: ['enter'],
+  entre: ['enter'],
+  entra: ['enter'],
+  passar: ['enter'],
+  passe: ['enter'],
+  atravessar: ['enter'],
+  atravesse: ['enter'],
+  seguir: ['enter'],
+  avance: ['enter'],
+  avancar: ['enter'],
+  andar: ['enter'],
+  caminhar: ['enter'],
+  subir: ['enter'],
+  embarcar: ['enter', 'boat'],
+  embarque: ['enter', 'boat'],
+  board: ['enter', 'boat'],
+  get: ['enter'],
+
+  ir: ['go'],
+  vou: ['go'],
+  vai: ['go'],
+  vamos: ['go'],
+  sair: ['leave'],
+  saia: ['leave'],
+  saio: ['leave'],
+  deixar: ['leave'],
+  deixa: ['leave'],
+  deixe: ['leave'],
+  abandonar: ['leave'],
+  abandone: ['leave'],
+  partir: ['leave'],
+  fuja: ['leave'],
+  fugir: ['leave'],
+  embora: ['leave'],
+  leave: ['leave'],
+  exit: ['leave'],
+
+  ler: ['read'],
+  leia: ['read'],
+  leio: ['read'],
+  lendo: ['read'],
+  leitura: ['read'],
+  read: ['read'],
+  consultar: ['read'],
+  consulte: ['read'],
+  conferir: ['read'],
+  confira: ['read'],
+  ver: ['read', 'look'],
+  veja: ['read', 'look'],
+  olhar: ['read', 'look'],
+  olhe: ['read', 'look'],
+  observar: ['read', 'look'],
+  observe: ['read', 'look'],
+  examinar: ['read', 'look'],
+  examine: ['read', 'look'],
+  espiar: ['read', 'look'],
+  look: ['look'],
+
+  acender: ['light'],
+  acenda: ['light'],
+  acendo: ['light'],
+  acendendo: ['light'],
+  iluminar: ['light'],
+  ilumine: ['light'],
+  atear: ['light'],
+  ateie: ['light'],
+  riscar: ['light'],
+  risque: ['light'],
+  queimar: ['light'],
+  usar: ['light'],
+  use: ['light'],
+  ignite: ['light'],
+  light: ['light'],
+
+  ficar: ['stay'],
+  fica: ['stay'],
+  fico: ['stay'],
+  fique: ['stay'],
+  permanecer: ['stay'],
+  permaneca: ['stay'],
+  permaneça: ['stay'],
+  esperar: ['stay'],
+  stay: ['stay'],
+
+  barril: ['barrel'],
+  tonel: ['barrel'],
+  tambor: ['barrel'],
+  barrel: ['barrel'],
+  túnel: ['tunnel'],
+  tunel: ['tunnel'],
+  passagem: ['tunnel'],
+  corredor: ['tunnel'],
+  caminho: ['tunnel'],
+  tunnel: ['tunnel'],
+  barco: ['boat'],
+  bote: ['boat'],
+  navio: ['boat'],
+  canoa: ['boat'],
+  embarcação: ['boat'],
+  embarcacao: ['boat'],
+  boat: ['boat'],
+  nota: ['note'],
+  bilhete: ['note'],
+  papel: ['note'],
+  mensagem: ['note'],
+  carta: ['note'],
+  note: ['note'],
+  fósforo: ['match'],
+  fosforo: ['match'],
+  palito: ['match'],
+  isqueiro: ['match'],
+  fogo: ['match'],
+  chama: ['match'],
+  match: ['match'],
+  amigo: ['person'],
+  amiga: ['person'],
+  companheiro: ['person'],
+  companheira: ['person'],
+  colega: ['person'],
+  pessoa: ['person'],
+  ele: ['person'],
+  ela: ['person'],
+  dele: ['person'],
+  dela: ['person']
+};
+
+const COMMAND_STOP_WORDS = new Set([
+  'a', 'o', 'as', 'os', 'um', 'uma', 'uns', 'umas',
+  'ao', 'aos', 'da', 'das', 'do', 'dos', 'de', 'em',
+  'no', 'na', 'nos', 'nas', 'com', 'meu', 'minha',
+  'meus', 'minhas', 'eu', 'me', 'se', 'e', 'que',
+  'para', 'pra', 'por', 'pelo', 'pela', 'pelos', 'pelas',
+  'the', 'a', 'an', 'of', 'to', 'on', 'my', 'next',
+  'with', 'and', 'here', 'agora', 'aqui'
+]);
+
+const COMMAND_ACTIONS = new Set([
+  'move', 'sit', 'enter', 'go', 'read', 'look', 'light', 'leave', 'stay'
+]);
+
+const COMMAND_TRAVEL_ACTIONS = new Set([
+  'move', 'enter', 'go', 'leave'
+]);
+
+const COMMAND_OBJECTS = new Set([
+  'barrel', 'tunnel', 'boat', 'note', 'match', 'person'
+]);
+
+function commandConcepts(text) {
+  const concepts = new Set();
+
+  normalizeCommand(text)
+    .split(' ')
+    .filter(Boolean)
+    .forEach(word => {
+      if (COMMAND_STOP_WORDS.has(word)) return;
+
+      const aliases = COMMAND_ALIASES[word];
+      if (aliases) {
+        aliases.forEach(alias => concepts.add(alias));
+        return;
+      }
+
+      concepts.add(word);
+    });
+
+  return concepts;
+}
+
 function commandMatches(inputText, accepted) {
   const input = normalizeCommand(inputText);
   const target = normalizeCommand(accepted);
@@ -340,15 +543,61 @@ function commandMatches(inputText, accepted) {
 
   if (compactInput === compactTarget) return true;
 
-  const inputWords = input.split(' ');
-  const targetWords = target.split(' ');
+  const inputConceptSet = commandConcepts(input);
+  const targetConceptSet = commandConcepts(target);
 
-  if (inputWords.length >= 2 && targetWords.length >= 2) {
-    const shared = targetWords.filter(
-      word => word.length > 2 && inputWords.includes(word)
-    ).length;
+  if (!inputConceptSet.size || !targetConceptSet.size) return false;
 
-    return shared >= Math.min(2, targetWords.length);
+  const inputConcepts = [...inputConceptSet];
+  const targetConcepts = [...targetConceptSet];
+
+  if (targetConcepts.every(concept => inputConceptSet.has(concept))) {
+    return true;
+  }
+
+  const inputActions = inputConcepts.filter(concept =>
+    COMMAND_ACTIONS.has(concept)
+  );
+  const targetActions = targetConcepts.filter(concept =>
+    COMMAND_ACTIONS.has(concept)
+  );
+  const inputObjects = inputConcepts.filter(concept =>
+    COMMAND_OBJECTS.has(concept)
+  );
+  const targetObjects = targetConcepts.filter(concept =>
+    COMMAND_OBJECTS.has(concept)
+  );
+
+  const sameAction = inputActions.some(action =>
+    targetActions.includes(action)
+  );
+  const compatibleTravel = inputActions.some(action =>
+    COMMAND_TRAVEL_ACTIONS.has(action)
+  ) && targetActions.some(action =>
+    COMMAND_TRAVEL_ACTIONS.has(action)
+  );
+  const sameObject = inputObjects.some(object =>
+    targetObjects.includes(object)
+  );
+  const onlyGenericObject = inputObjects.every(object => object === 'person');
+
+  /*
+    Uma ordem diferente ou palavras extras não mudam a intenção. Se as duas
+    frases falam da mesma ação, aceitamos; quando ambas especificam objetos,
+    eles também precisam ser compatíveis para não misturar barco e barril.
+  */
+  if (sameAction || compatibleTravel) {
+    if (!targetObjects.length || !inputObjects.length || sameObject || onlyGenericObject) {
+      return true;
+    }
+  }
+
+  const sharedConcepts = targetConcepts.filter(concept =>
+    inputConceptSet.has(concept)
+  );
+
+  if (sharedConcepts.length >= 2) {
+    return true;
   }
 
   return false;
