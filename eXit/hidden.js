@@ -96,6 +96,9 @@ const STATES = {
       'empurrar o barril',
       'empurrar',
       'empurrar barril',
+      'empurro o barril',
+      'eu empurro o barril',
+      'eu movo o barril',
       'tirar barril',
       'tirar'
     ],
@@ -105,7 +108,8 @@ const STATES = {
       'sentar com meu amigo',
       'ficar ao lado do meu amigo',
       'sit next to my friend',
-      'sit down next to my friend'
+      'sit down next to my friend',
+      'sentar'
     ],
     next: 'move_barrel',
     altNext: 'sit_friend'
@@ -193,7 +197,9 @@ const STATES = {
           'acenda fósforo',
           'acenda fosforo',
           'light a match',
-          'light match'
+          'light match',
+          'tentar',
+          'acender'
         ],
         next: 'light_note'
       }
@@ -206,6 +212,15 @@ const STATES = {
     accepts: [
       'olhar',
       'olhe',
+      'olho',
+      'continuar',
+      'ir pra praia',
+      'ir na praia',
+      'sair do túnel',
+      'sair do tunel',
+      'sair',
+      'andar',
+      'ir embora',
       'ver',
       'look'
     ],
@@ -238,7 +253,18 @@ const STATES = {
           'leia a nota',
           'leia nota',
           'read the note',
-          'read note'
+          'read note',
+          'pegar nota',
+          'pegar a nota',
+          'ver a nota',
+          'ver nota',
+          'pegar o bilhete',
+          'pegar bilhete',
+          'ver bilhete',
+          'ver o bilhete',
+          'ler bilhete',
+          'ler o bilhete',
+          'pegar'
         ],
         next: 'note'
       },
@@ -2328,58 +2354,65 @@ function setupMobileControls() {
     nenhum teclado consiga reposicionar o cursor.
   */
 
-  mobileInput.addEventListener(
-    'beforeinput',
-    e => {
-      e.stopPropagation();
+  const supportsBeforeInput = 'onbeforeinput' in mobileInput;
 
-      const type = e.inputType || '';
+  if (supportsBeforeInput) {
+    mobileInput.addEventListener(
+      'beforeinput',
+      e => {
+        e.stopPropagation();
 
-      if (
-        type === 'insertText' ||
-        type === 'insertCompositionText' ||
-        type === 'insertFromPaste' ||
-        type === 'insertReplacementText'
-      ) {
-        e.preventDefault();
-        appendMobileText(
-          e.data || e.clipboardData?.getData('text') || ''
-        );
-        mobileInput.value = '';
-        return;
+        const type = e.inputType || '';
+
+        if (
+          type === 'insertText' ||
+          type === 'insertCompositionText' ||
+          type === 'insertFromPaste' ||
+          type === 'insertReplacementText'
+        ) {
+          e.preventDefault();
+          appendMobileText(
+            e.data || e.clipboardData?.getData('text') || ''
+          );
+          mobileInput.value = '';
+          mobileInput.setSelectionRange?.(0, 0);
+          return;
+        }
+
+        if (
+          type === 'deleteContentBackward' ||
+          type === 'deleteContentForward'
+        ) {
+          e.preventDefault();
+          deleteMobileText();
+          mobileInput.value = '';
+          mobileInput.setSelectionRange?.(0, 0);
+        }
       }
+    );
+  } else {
+    /* Fallback para navegadores que não expõem beforeinput. */
+    mobileInput.addEventListener(
+      'input',
+      e => {
+        const type = e.inputType || '';
 
-      if (
-        type === 'deleteContentBackward' ||
-        type === 'deleteContentForward'
-      ) {
-        e.preventDefault();
-        deleteMobileText();
-      }
-    }
-  );
+        if (type === 'deleteContentBackward' || type === 'deleteContentForward') {
+          deleteMobileText();
+          mobileInput.value = '';
+          mobileInput.setSelectionRange?.(0, 0);
+          return;
+        }
 
-  /* Fallback para navegadores que não expõem beforeinput. */
-  mobileInput.addEventListener(
-    'input',
-    e => {
-      const type = e.inputType || '';
+        const typed = e.data || mobileInput.value;
+        if (!typed) return;
 
-      if (type === 'deleteContentBackward' || type === 'deleteContentForward') {
-        deleteMobileText();
+        appendMobileText(typed);
         mobileInput.value = '';
         mobileInput.setSelectionRange?.(0, 0);
-        return;
       }
-
-      const typed = e.data || mobileInput.value;
-      if (!typed) return;
-
-      appendMobileText(typed);
-      mobileInput.value = '';
-      mobileInput.setSelectionRange?.(0, 0);
-    }
-  );
+    );
+  }
 
   /*
     Botão de enviar.
